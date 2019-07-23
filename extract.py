@@ -5,6 +5,8 @@ produced by the LLVM tools, also extracts WASM information then stores them in t
 import argparse
 import logging
 import sys
+import os
+
 def parse_args():
   parser = argparse.ArgumentParser(prog='strip.py', description=__doc__)
   parser.add_argument('input', help='wasm file')
