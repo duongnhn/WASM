@@ -58,7 +58,7 @@ def strip_wasm_sections(wasm):
   return stripped
 
 def main():
-  # example: python strip.py fib.wasm --dwarf fib.dwarf --wasm out.wasm
+  # example: python extract.py fib.wasm --dwarf fib.dwarf --wasm out.wasm
 
   options = parse_args()
   with open(options.input, 'rb') as infile:
