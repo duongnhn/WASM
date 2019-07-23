@@ -3,12 +3,7 @@
 produced by the LLVM tools, also extracts WASM information then stores them in two seperate files
 """
 import argparse
-from collections import OrderedDict
-import json
 import logging
-import os
-import re
-from subprocess import Popen, PIPE
 import sys
 def parse_args():
   parser = argparse.ArgumentParser(prog='strip.py', description=__doc__)
