@@ -24,6 +24,7 @@ def read_var_uint(wasm, pos):
     pos = pos + 1
     shift += 7
   return n + (b << shift), pos
+
 def strip_debug_sections(wasm):
   logging.debug('Strip debug sections')
   pos = 8
@@ -59,6 +60,21 @@ def strip_wasm_sections(wasm):
         # skip wasm related sections
   return stripped
 
+def encode_uint_var(n):
+  result = bytearray()
+  while n > 127:
+    result.append(128 | (n & 127))
+    n = n >> 7
+  result.append(n)
+  return bytes(result)
+
+def append_debug_mapping(wasm, url):
+  logging.debug('Append debugMappingURL section')
+  section_name = "debugMappingURL"
+  section_content = encode_uint_var(len(section_name)) + section_name + encode_uint_var(len(url)) + url
+  return wasm + encode_uint_var(0) + encode_uint_var(len(section_content)) + section_content
+
+
 def main():
   # example: python extract.py fib.wasm --dwarf fib.dwarf --wasm out.wasm
 
@@ -70,7 +86,7 @@ def main():
     outfile_dwarf.write(dwarf)
   with open(options.wasm, 'wb') as outfile_wasm:
     wasm = strip_debug_sections(wasm_input)
-    outfile_wasm.write(wasm)
+    outfile_wasm.write(append_debug_mapping(wasm, "http://localhost:8000/"+options.dwarf))
   logging.debug('Done')
   return 0
 if __name__ == '__main__':
