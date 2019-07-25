@@ -7,12 +7,15 @@ import logging
 import sys
 import os
 
+
 def parse_args():
-  parser = argparse.ArgumentParser(prog='strip.py', description=__doc__)
+  parser = argparse.ArgumentParser(prog='extract.py', description=__doc__)
   parser.add_argument('input', help='wasm file')
   parser.add_argument('-dwarf-', '--dwarf', help='output dwarf')
   parser.add_argument('-wasm-', '--wasm', help='output wasm')
   return parser.parse_args()
+
+
 def read_var_uint(wasm, pos):
   n = 0
   shift = 0
@@ -24,6 +27,7 @@ def read_var_uint(wasm, pos):
     pos = pos + 1
     shift += 7
   return n + (b << shift), pos
+
 
 def strip_debug_sections(wasm):
   logging.debug('Strip debug sections')
@@ -42,6 +46,7 @@ def strip_debug_sections(wasm):
         continue  # skip debug related sections
     stripped = stripped + wasm[section_start:pos]
   return stripped
+
 def strip_wasm_sections(wasm):
   logging.debug('Strip wasm sections')
   pos = 8
@@ -69,8 +74,8 @@ def encode_uint_var(n):
   return bytes(result)
 
 def append_debug_mapping(wasm, url):
-  logging.debug('Append debugMappingURL section')
-  section_name = "debugMappingURL"
+  logging.debug('Append debugSymbolsURL section')
+  section_name = "debugSymbolsURL"
   section_content = encode_uint_var(len(section_name)) + section_name + encode_uint_var(len(url)) + url
   return wasm + encode_uint_var(0) + encode_uint_var(len(section_content)) + section_content
 
