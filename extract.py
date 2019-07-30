@@ -28,6 +28,15 @@ def read_var_uint(wasm, pos):
     shift += 7
   return n + (b << shift), pos
 
+def get_code_section_offset(wasm):
+  logging.debug('Read sections index')
+  pos = 8
+  while pos < len(wasm):
+    section_id, pos_ = read_var_uint(wasm, pos)
+    section_size, pos = read_var_uint(wasm, pos_)
+    if section_id == 10:
+      return pos
+    pos = pos + section_size
 
 def strip_debug_sections(wasm):
   logging.debug('Strip debug sections')
@@ -101,9 +110,11 @@ def main():
   options = parse_args()
   with open(options.input, 'rb') as infile:
     wasm_input = infile.read()
+	
+  code_section_offset = get_code_section_offset(wasm_input)
+  print("code_section_offset: ", code_section_offset)
   with open(options.wasm, 'wb') as outfile_wasm:
-    wasm, code_section_offset = strip_debug_sections(wasm_input)
-    #print("code_section_offset: ", code_section_offset)
+    wasm, _ = strip_debug_sections(wasm_input)
     outfile_wasm.write(append_debug_mapping(wasm, "http://localhost:8889/" + options.dwarf))
   with open(options.dwarf, 'wb') as outfile_dwarf:
     dwarf = strip_wasm_sections(wasm_input)
